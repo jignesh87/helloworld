@@ -1,0 +1,44 @@
+<template>
+    <div>
+        <label for="">Products List</label>
+        <u>
+           <!-- <li v-for="(item, index) in products">{{item.name}}</li> -->
+           <li v-for="product in products" :key="product.id">{{product.name}}</li>
+
+        </u>
+    </div>
+</template>
+<style>
+
+</style>
+<script>
+import axios from 'axios';
+export default {
+    data(){
+        return {
+         products:[],
+        }
+    },
+    created(){
+        console.log("in created");
+                  
+
+    },
+    mounted(){
+            console.log("in mounted");
+              this.getProducts();
+    },
+    methods:{
+      getProducts() {
+          axios.get('products').then(function (response) {
+                    // handle success
+                    console.log(response);
+                    this.products = response.data;
+                }).catch(function (error) {
+                    // handle error
+                    console.log(error);
+                })
+        }
+    }
+}
+</script>
