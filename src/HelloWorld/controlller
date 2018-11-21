@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Post;
+use App\Product;
+class PostController extends Controller
+{
+    public function store(Request $request, Post $post)
+    {
+        $newPost = $request->user()->posts()->create([
+            'body' => $request->get('body')
+        ]);
+   
+        return response()->json($post->with('user')->find($newPost->id));
+    }
+
+    public function saveproduct(Request $request, Product $product)
+    {
+    	try {
+    		$product = new Product;
+	        $product->name = $request->name;
+	        $product->desc = $request->desc;
+	        $product->save();
+	        if($product){
+	        	return response()->json(['status'=>true]);	
+	        }
+    	} catch(Exception $e) {
+    		return response()->json($e->errorMessage());	
+    	}
+    	
+    }
+
+    public function getbyid(Request $request,$id)
+    {	
+	   	try {
+    		$product = Product::findOrFail($id);
+    		return response()->json($product);
+    	} catch (Exception $e) {
+    		return response()->json($e);
+    	}	
+    }
+
+    public function editproduct(Request $request)
+    {
+    	try {
+			$product = Product::find($request->get('id'));
+			$product->name = $request->get('name');
+			$product->desc = $request->get('desc');
+			$product->save();
+    		return response()->json($product);
+
+    	} catch (Exception $e) {
+    		return response()->json($e);
+    	}
+    	return response()->json($request->all());
+    }
+
+    
+}
