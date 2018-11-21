@@ -1,11 +1,35 @@
 <template>
-    <div>
-        <label for="">Products List</label>
-        <u>
-           <!-- <li v-for="(item, index) in products">{{item.name}}</li> -->
-           <li v-for="product in products" :key="product.id">{{product.name}}</li>
+    <div class="col-md-12">
+        <label for="">List</label>
+       <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">+</button>
+        <ul class="list-group">
+           <li class="list-group-item" v-for="product in products" :key="product.id" @click="edit(product.id)">{{product.name}}
+             <!-- <span class="pull-right"><a @click="edit">Edit</a></span> --></li>
+        </ul>
 
-        </u>
+        <!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">
+        <p><label>Name: </label><input type="text" name="name" v-model="name"></p>
+        <p><label>Desc: </label><input type="text" name="desc" v-model="desc"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button v-if="currentid == null" type="button" class="btn btn-success" data-dismiss="modal" @click="addnew" >Save</button>
+        <button v-else type="button" class="btn btn-primary" data-dismiss="modal" @click="update" >Update</button>
+      </div>
+    </div>
+
+  </div>
+</div>
     </div>
 </template>
 <style>
@@ -17,28 +41,58 @@ export default {
     data(){
         return {
          products:[],
+         name:'',
+         desc:'',
+         currentid:null
         }
     },
     created(){
         console.log("in created");
-                  
-
     },
     mounted(){
-            console.log("in mounted");
-              this.getProducts();
+        console.log("in mounted");
+        this.getProducts();
     },
     methods:{
-      getProducts() {
-          axios.get('products').then(function (response) {
-                    // handle success
-                    console.log(response);
-                    this.products = response.data;
-                }).catch(function (error) {
-                    // handle error
-                    console.log(error);
-                })
-        }
+        getProducts() {
+            axios.get('products').then(response => {
+                this.products = response.data;
+            }).catch(error => {
+                console.log(error)
+            })
+        },
+        addnew() {
+            axios.post('saveproduct',{name: this.name,desc:this.desc})
+            .then(response => {
+                console.log(response)
+                this.getProducts();
+            })
+            .catch(error=>{
+
+            })
+        },
+        edit(id) {
+            axios.get('getbyid/'+id).then(response => {
+                this.currentid = id;
+                $('#myModal').modal('show');
+                this.name = response.data.name;
+                this.desc = response.data.desc;
+                console.log(response);
+            }).catch(error => {
+                console.log(error)
+            })
+        },
+        update(){
+            axios.put('editproduct',{id:this.currentid,name:this.name,desc:this.desc}).
+            then(response => {
+                this.currentid = null;
+                this.getProducts();
+            }).
+            catch(error => {
+
+            })
+        }  
     }
 }
 </script>
+
