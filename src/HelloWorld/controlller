@@ -3,25 +3,45 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Post;
 use App\Product;
-class PostController extends Controller
+class HomeController extends Controller
 {
-    public function store(Request $request, Post $post)
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
     {
-        $newPost = $request->user()->posts()->create([
-            'body' => $request->get('body')
-        ]);
-   
-        return response()->json($post->with('user')->find($newPost->id));
+        $this->middleware('auth');
     }
+
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        return view('home');
+    }
+
+
+    // public function store(Request $request, Post $post)
+    // {
+    //     $newPost = $request->user()->posts()->create([
+    //         'body' => $request->get('body')
+    //     ]);
+   
+    //     return response()->json($post->with('user')->find($newPost->id));
+    // }
 
     public function saveproduct(Request $request, Product $product)
     {
     	try {
     		$product = new Product;
 	        $product->name = $request->name;
-	        $product->desc = $request->desc;
+	        $product->description = $request->desc;
 	        $product->save();
 	        if($product){
 	        	return response()->json(['status'=>true]);	
@@ -47,7 +67,7 @@ class PostController extends Controller
     	try {
 			$product = Product::find($request->get('id'));
 			$product->name = $request->get('name');
-			$product->desc = $request->get('desc');
+			$product->description = $request->get('desc');
 			$product->save();
     		return response()->json($product);
 
@@ -56,6 +76,13 @@ class PostController extends Controller
     	}
     	return response()->json($request->all());
     }
-
-    
+    public function destroy(Request $request,$id)
+    {   
+        try {
+            Product::destroy($id);
+        } catch (Exception $e) {
+    		return response()->json($e);
+    	}
+    	return response()->json($request->all());
+    }
 }
